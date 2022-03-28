@@ -17,13 +17,13 @@ With 1 file called common.json:
 	"port": 8081
     }
 
-AUTHKEY is the token key you can get from:
+AUTHKEY is the local token key you can get from your local Tellstick (use your local IP):
 https://tellstick-server.readthedocs.io/en/latest/api/authentication.html#step-1-request-a-request-token
 
 
 ## How to start?
 Check out this code.
-Create common.json in a the config-folder, according to above.
+Create common.json in a config-folder, according to above.
 
 Run the following command once to download modules:
 npm install
