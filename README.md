@@ -1,12 +1,16 @@
 
 ## Purpose
 This is a project for showing temperature capctured from a Tellstick sensor
+I am using the following in my setup:
+- 1 Telldus Tellstick Znet Lite v2
+- 1 Indoor/Outdoor Telldus 433,92 MHz sensor
 
 Using Chart.js for showing the data
 
 ## Configuration needed after code is downloaded
+1. Connect your sensor to your Tellstick in Telldus Live.
 
-Need to create directory called: 
+2. Then create directory called: 
 
     config
 
