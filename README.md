@@ -1,6 +1,7 @@
 
 ## Purpose
 This is a project for showing temperature capctured from a Tellstick sensor
+
 I am using the following in my setup:
 - 1 Telldus Tellstick Znet Lite v2
 - 1 Indoor/Outdoor Telldus 433,92 MHz sensor
