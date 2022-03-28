@@ -13,10 +13,8 @@ Need to create directory called:
 With 1 file called common.json:
 
     {
-	"authkey": "INSERT_YOUR_TOKEN_HERE",
-        "port": 8081
-
-        }
+    	"authkey": "INSERT_YOUR_TOKEN_HERE",
+	"port": 8081
     }
 
 AUTHKEY is the token key you can get from:
