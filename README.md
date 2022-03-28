@@ -6,7 +6,7 @@ I am using the following in my setup:
 - 1 Telldus Tellstick Znet Lite v2
 - 1 Indoor/Outdoor Telldus 433,92 MHz sensor
 
-Using Chart.js for showing the data
+Using node and express with Chart.js for showing the data
 
 ## Configuration needed after code is downloaded
 1. Connect your sensor to your Tellstick in Telldus Live.
