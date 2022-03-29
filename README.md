@@ -31,10 +31,12 @@ Check out this code.
 Create common.json in a config-folder, according to above.
 
 Run the following command once to download modules:
-npm install
+__npm install__
 
 Run one of the following command to start application/server:
-node server.js or npm start
+__node server.js__
+ or 
+__npm start__
 
 ## Known limitations/bugs
 
