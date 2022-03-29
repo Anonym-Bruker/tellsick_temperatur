@@ -37,3 +37,7 @@ Run one of the following command to start application/server:
 node server.js or npm start
 
 ## Known limitations/bugs
+
+
+## Additional information about Charts.js
+https://www.chartjs.org/docs/latest/axes/styling.html
