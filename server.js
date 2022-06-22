@@ -1,6 +1,6 @@
 var express = require('express');
 const config = require('./config/common.json');
-const http = require('http');
+const request = require('request');
 
 var app = express();
 
@@ -15,10 +15,83 @@ app.set('view engine', 'ejs');
 
 var temperaturer = [];
 
-var darkmode = "off";
+var sensorverdier = [];
+var devices = [];
 
-//var firstDayInMonth = setFirstDay(new Date());
-//var firstDayInPrevMonth = setfirstPrevMonth(new Date());
+var darkmode = "on";
+
+// Fetching all devices from Telldus, updating devices-array
+getDevices()
+
+function getDevices(){
+    (async () => {
+    request({
+        url: "https://api.telldus.com/json/sensors/list",
+        method: "GET",
+        oauth: {
+            consumer_key: config.Publickey,
+            consumer_secret: config.PrivateKey,
+            token: config.Token,
+            token_secret: config.TokenSecret
+        },
+        headers: {
+            "content-type": "application/json"
+        }
+    }, (err, rs, body) => {
+        var values = JSON.parse(body);
+        logging("Sensorverdier hentet ut:" + JSON.stringify(values));
+        devices = values.sensor;
+        logging("Alt hentet ut!")
+        updateAllTemp()
+    });
+    })();
+
+}
+
+function updateAllTemp(){
+    var currentDate = new Date();
+    logging("Oppdaterer temperaturer for følgende antall enheter: " +  devices.length);
+
+    devices.forEach((element, index) => {
+        (async () => {
+            request({
+                url: "https://api.telldus.com/json/sensor/info?id=" + element.id,
+                method: "GET",
+                oauth: {
+                    consumer_key: config.Publickey,
+                    consumer_secret: config.PrivateKey,
+                    token: config.Token,
+                    token_secret: config.TokenSecret
+                },
+                headers: {
+                    "content-type": "application/json"
+                }
+            }, (err, rs, body) => {
+                var values = JSON.parse(body);
+                //logging("Full metering data:" + JSON.stringify(values));
+                if (sensorverdier.length > 479) {
+                    sensorverdier.shift();
+                }
+                sensorverdier[index] = values;
+                if (values.name == config.outdoor) {
+                    logging("Funnet " + config.outdoor + ", legger til i grafarray")
+                    if (temperaturer.length > 479) {
+                        temperaturer.shift();
+                    }
+                    var tempArray = [];
+                    tempArray[0] = values.data[0].value;
+                    tempArray[1] = currentDate.getHours() + ":" + currentDate.getMinutes();
+                    tempArray[2] = values.data[1].value;
+                    temperaturer.push(tempArray);
+                    logging("ID for sensor:" + values.id);
+                    logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
+                    logging("Time for value:" + tempArray[1]);
+                    logging("Length of array:" + temperaturer.length);
+                }
+            });
+        })();
+    });
+}
 
 
 app.get('/mode/:mode', function (req, res) {
@@ -46,54 +119,14 @@ app.get('/', function (req, res) {
 	res.render('index',
 	{
 	       	temperaturer,
-		darkmode
+            sensorverdier,
+		    darkmode
        	})
 })
 
-updateTemp();
-
-function updateTemp(){
-	var currentDate = new Date();
-
-	var auth = "Bearer " + config.authkey;
-	var url = "http://192.168.1.253/api/sensor/info?id=6 ";
-
-	logging("Running update of temp...");
-
-	(async () => {
-        http.get(url, {headers : {"Authorization" : auth}} , (resp) => {
-            let data = '';
-
-            // A chunk of data has been received.
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
-            // The whole response has been received. Print out the result.
-            resp.on('end', () => {
-		var values = JSON.parse(data);
-		if(temperaturer.length>479){
-			temperaturer.shift();
-		}
-		var tempArray = [];
-		tempArray[0] = values.data[0].value;
-		tempArray[1] = currentDate.getHours() + ":" + currentDate.getMinutes();
-		temperaturer.push(tempArray);
-                logging("ID for sensor:" + values.id);
-                logging("Value for sensor:" + tempArray[0]);
-                logging("Date for value:" + tempArray[1]);
-                logging("Lengt of array:" + temperaturer.length);
-                logging("Full metering data:" + JSON.stringify(values));
-            });
-	 }).on("error", (err) => {
-            console.log("Error: " + err.message);
-        });
-    })();
-}
-
-
 setInterval(function(){
-	updateTemp();
-}, 600000);
+    updateAllTemp();
+}, 300000);
 
 function logging(logtext)
 {
@@ -101,5 +134,5 @@ function logging(logtext)
 }
 
 var server = app.listen(port, function () {
-    logging( "Server started, listening at port")
+    logging( "Server started, listening at port: " + port)
 })

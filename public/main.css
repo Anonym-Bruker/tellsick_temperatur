@@ -1,7 +1,4 @@
-th, td {
-    border: 0px solid black;
-}
-
-body {
-   background-color: white;
+input{
+    height: 25px;
+    width:100px;
 }

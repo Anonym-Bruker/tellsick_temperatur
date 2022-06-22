@@ -19,11 +19,19 @@ With 1 file called common.json:
 
     {
     	"authkey": "INSERT_YOUR_TOKEN_HERE",
-	"port": 8081
-    }
+	    "port": 8081
+	    "Publickey" :	"TELLEDUS Public key",
+	    "PrivateKey":	"TELLEDUS Private key",
+	    "Token":	"TELLEDUS Token",
+	    "TokenSecret":	"TELLEDUS Token secret",
+	    "outdoor":"NAME ON THE OUTDOOR SENSOR THAT WILL BE DISPLAYED IN THE GRAPH"
+}
 
 AUTHKEY is the local token key you can get from your local Tellstick (use your local IP):
 https://tellstick-server.readthedocs.io/en/latest/api/authentication.html#step-1-request-a-request-token
+
+The other key ant token values are generated here:
+https://api.telldus.com/keys/index
 
 
 ## How to start?
@@ -43,3 +51,31 @@ __npm start__
 
 ## Additional information about Charts.js
 https://www.chartjs.org/docs/latest/axes/styling.html
+
+### Tellstick documentation
+https://api.telldus.com/
+
+### Device types
+| Name (type)       | UUID                                  |
+|-------------------|---------------------------------------|
+| Unknown/other     | 00000000-0001-1000-2005-ACCA54000000  |
+| Alarm Sensor	     | 00000001-0001-1000-2005-ACCA54000000  |
+| Container	        | 00000002-0001-1000-2005-ACCA54000000  |
+| Controller	       | 00000003-0001-1000-2005-ACCA54000000|
+| Door/Window	      | 00000004-0001-1000-2005-ACCA54000000  |
+| Light             | 	00000005-0001-1000-2005-ACCA54000000 |
+| Lock	             | 00000006-0001-1000-2005-ACCA54000000  |
+| Media	            | 00000007-0001-1000-2005-ACCA54000000  |
+| Meter	            | 00000008-0001-1000-2005-ACCA54000000  |
+| Motion	           | 00000009-0001-1000-2005-ACCA54000000  |
+| On/Off sensor	    | 0000000A-0001-1000-2005-ACCA54000000  |
+| Person	           | 0000000B-0001-1000-2005-ACCA54000000  |
+| Remote control	   | 0000000C-0001-1000-2005-ACCA54000000  |
+| Sensor	           | 0000000D-0001-1000-2005-ACCA54000000  |
+| Smoke sensor	     | 0000000E-0001-1000-2005-ACCA54000000  |
+| Speaker	          | 0000000F-0001-1000-2005-ACCA54000000  |
+| Switch/Outlet	    | 00000010-0001-1000-2005-ACCA54000000  |
+| Thermostat	       | 00000011-0001-1000-2005-ACCA54000000  |
+| Virtual	          | 00000012-0001-1000-2005-ACCA54000000  |
+| Window covering	  | 00000013-0001-1000-2005-ACCA54000000  |
+| Projector screen	 | 00000014-0001-1000-2005-ACCA5400000   |
