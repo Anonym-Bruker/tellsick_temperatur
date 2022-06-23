@@ -6,6 +6,8 @@ var app = express();
 
 app.use(express.static('public'));
 
+var reloadverdi = 300000;
+
 var port = config.port;
 
 var values = [1];
@@ -72,26 +74,30 @@ function updateAllTemp(){
                     "content-type": "application/json"
                 }
             }, (err, rs, body) => {
-                var values = JSON.parse(body);
-                //logging("Full metering data:" + JSON.stringify(values));
-                if (sensorverdier.length > 479) {
-                    sensorverdier.shift();
-                }
-                sensorverdier[index] = values;
-                if (values.name == config.outdoor) {
-                    logging("Funnet " + config.outdoor + ", legger til i grafarray")
-                    if (temperaturer.length > 479) {
-                        temperaturer.shift();
+                try {
+                    var values = JSON.parse(body);
+                    //logging("Full metering data:" + JSON.stringify(values));
+                    if (sensorverdier.length > 479) {
+                        sensorverdier.shift();
                     }
-                    var tempArray = [];
-                    tempArray[0] = values.data[0].value;
-                    tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
-                    tempArray[2] = values.data[1].value;
-                    temperaturer.push(tempArray);
-                    logging("ID for sensor:" + values.id);
-                    logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
-                    logging("Time for value:" + tempArray[1]);
-                    logging("Length of array:" + temperaturer.length);
+                    sensorverdier[index] = values;
+                    if (values.name == config.outdoor) {
+                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
+                        if (temperaturer.length > 479) {
+                            temperaturer.shift();
+                        }
+                        var tempArray = [];
+                        tempArray[0] = values.data[0].value;
+                        tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
+                        tempArray[2] = values.data[1].value;
+                        temperaturer.push(tempArray);
+                        logging("ID for sensor:" + values.id);
+                        logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
+                        logging("Time for value:" + tempArray[1]);
+                        logging("Length of array:" + temperaturer.length);
+                    }
+                }catch (e) {
+                    console.log('invalid json: ' + body);
                 }
             });
         })();
@@ -131,7 +137,7 @@ app.get('/', function (req, res) {
 
 setInterval(function(){
     updateAllTemp();
-}, 300000);
+}, reloadverdi);
 
 function logging(logtext)
 {
