@@ -1,17 +1,14 @@
 var express = require('express');
 const config = require('./config/common.json');
 const request = require('request');
+const http = require('http');
 
 var app = express();
 
 app.use(express.static('public'));
 
-var reloadverdi = 300000;
-
+var reloadverdi = config.reloadverdi;
 var port = config.port;
-
-var values = [1];
-var labels = ['Init...'];
 
 app.set('view engine', 'ejs');
 
@@ -96,8 +93,9 @@ function updateAllTemp(){
                         logging("Time for value:" + tempArray[1]);
                         logging("Length of array:" + temperaturer.length);
                     }
-                }catch (e) {
+                } catch (e) {
                     console.log('invalid json: ' + body);
+                    updateTempLocal();
                 }
             });
         })();
@@ -150,48 +148,54 @@ var server = app.listen(port, function () {
 
 
 //Method for using the local API
-function updateTemp(){
+function updateTempLocal(){
     var currentDate = new Date();
-
     var auth = "Bearer " + config.localauthkey;
-    var url = "http://192.168.1.253/api/sensor/info?id="+ider[0];
+    logging("(LOCAL) Oppdaterer temperaturer for følgende antall enheter: " +  devices.length);
 
-    logging("Oppdaterer utetemperatur...");
+    devices.forEach((element, index) => {
+        var url = "http://192.168.1.253/api/sensor/info?id=" + element.id;
+        (async () => {
+            http.get(url, {headers: {"Authorization": auth}}, (resp) => {
+                let data = '';
 
-    (async () => {
-        http.get(url, {headers : {"Authorization" : auth}} , (resp) => {
-            let data = '';
-
-            // A chunk of data has been received.
-            resp.on('data', (chunk) => {
-                data += chunk;
+                // A chunk of data has been received.
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+                // The whole response has been received. Print out the result.
+                resp.on('end', () => {
+                    var values = JSON.parse(data);
+                    if (sensorverdier.length > 479) {
+                        sensorverdier.shift();
+                    }
+                    sensorverdier[index] = values;
+                    if (values.name == config.outdoor) {
+                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
+                        if (temperaturer.length > 479) {
+                            temperaturer.shift();
+                        } else if (values != null && values.data != undefined) {
+                            var tempArray = [];
+                            tempArray[0] = values.data[0].value;
+                            tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
+                            tempArray[2] = values.data[1].value;
+                            temperaturer.push(tempArray);
+                            logging("ID for sensor:" + values.id);
+                            logging("Value for sensor:" + tempArray[0]);
+                            logging("Date for value:" + tempArray[1]);
+                            logging("Lengt of array:" + temperaturer.length);
+                            logging("Full metering data:" + JSON.stringify(values));
+                        } else {
+                            var tempArray = [];
+                            tempArray[0] = "N/A";
+                            tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
+                            temperaturer.push(tempArray);
+                        }
+                    }
+                });
+            }).on("error", (err) => {
+                console.log("Error: " + err.message);
             });
-            // The whole response has been received. Print out the result.
-            resp.on('end', () => {
-                var values = JSON.parse(data);
-                if(temperaturer.length>479){
-                    temperaturer.shift();
-                } else if (values != null && values.data != undefined){
-                    var tempArray = [];
-                    tempArray[0] = values.data[0].value;
-                    tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
-                    tempArray[2] = values.data[1].value;
-                    temperaturer.push(tempArray);
-                    logging("ID for sensor:" + values.id);
-                    logging("Value for sensor:" + tempArray[0]);
-                    logging("Date for value:" + tempArray[1]);
-                    logging("Lengt of array:" + temperaturer.length);
-                    logging("Full metering data:" + JSON.stringify(values));
-                } else {
-                    var tempArray = [];
-                    tempArray[0] = "N/A";
-                    tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
-                    temperaturer.push(tempArray);
-                }
-
-            });
-        }).on("error", (err) => {
-            console.log("Error: " + err.message);
-        });
-    })();
+        })();
+    });
 }

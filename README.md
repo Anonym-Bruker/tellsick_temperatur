@@ -19,13 +19,14 @@ With 1 file called common.json:
 
     {
     	"authkey": "INSERT_YOUR_TOKEN_HERE",
-	    "port": 8081
+	    "port": 8081,
 	    "Publickey" :	"TELLEDUS Public key",
 	    "PrivateKey":	"TELLEDUS Private key",
 	    "Token":	"TELLEDUS Token",
 	    "TokenSecret":	"TELLEDUS Token secret",
-	    "outdoor":"NAME ON THE OUTDOOR SENSOR THAT WILL BE DISPLAYED IN THE GRAPH"
-}
+	    "outdoor":"NAME ON THE OUTDOOR SENSOR THAT WILL BE DISPLAYED IN THE GRAPH",
+        "reloadverdi": 300000
+    }
 
 AUTHKEY is the local token key you can get from your local Tellstick (use your local IP):
 https://tellstick-server.readthedocs.io/en/latest/api/authentication.html#step-1-request-a-request-token
