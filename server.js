@@ -6,9 +6,13 @@ var app = express();
 
 app.use(express.static('public'));
 
-var reloadverdi = 300000;
+var reloadverdi = 5000;
+var newTempValues = reloadverdi * 60;
+var reloadIn = 0;
 
 var port = config.port;
+var ip = config.ip;
+
 
 var values = [1];
 var labels = ['Init...'];
@@ -25,26 +29,25 @@ var darkmode = "on";
 // Fetching all devices from Telldus, updating devices-array
 getDevices()
 
+//var authorization = "Bearer " + config.authkey;
+//logging("Authorization : " + authorization)
+
 function getDevices(){
     (async () => {
     request({
-        url: "https://api.telldus.com/json/sensors/list",
-        method: "GET",
-        oauth: {
-            consumer_key: config.Publickey,
-            consumer_secret: config.PrivateKey,
-            token: config.Token,
-            token_secret: config.TokenSecret
-        },
-        headers: {
-            "content-type": "application/json"
-        }
+	url: "http://" + config.ip + "/api/sensors/list",
+	method: "GET",
+	headers: {
+	    "User-Agent": "sensors",
+	    "Authorization": "Bearer " + config.authkey,
+	    "Content-Type": "application/json",
+	    "Accept": "application/json"
+	  }
     }, (err, rs, body) => {
         var values = JSON.parse(body);
         logging("Sensorverdier hentet ut:" + JSON.stringify(values));
         devices = values.sensor;
         logging("Alt hentet ut!")
-        updateAllTemp()
     });
     })();
 
@@ -57,44 +60,49 @@ function pad (length, str) {
 
 function updateAllTemp(){
     var currentDate = new Date();
+    getDevices()
     logging("Oppdaterer temperaturer for følgende antall enheter: " +  devices.length);
 
     devices.forEach((element, index) => {
         (async () => {
             request({
-                url: "https://api.telldus.com/json/sensor/info?id=" + element.id,
-                method: "GET",
-                oauth: {
-                    consumer_key: config.Publickey,
-                    consumer_secret: config.PrivateKey,
-                    token: config.Token,
-                    token_secret: config.TokenSecret
-                },
-                headers: {
-                    "content-type": "application/json"
-                }
+		url: "http://" + config.ip + "/api/sensor/info?id=" + element.id,
+		method: "GET",
+		headers: {
+		    "User-Agent": "sensors",
+		    "Authorization": "Bearer " + config.authkey,
+		    "Content-Type": "application/json",
+		    "Accept": "application/json"
+		}
             }, (err, rs, body) => {
                 try {
                     var values = JSON.parse(body);
-                    //logging("Full metering data:" + JSON.stringify(values));
+                    logging("Full metering data:" + JSON.stringify(values));
+                    //logging("1: ReloadIn: " + reloadIn);
                     if (sensorverdier.length > 479) {
                         sensorverdier.shift();
                     }
                     sensorverdier[index] = values;
-                    if (values.name == config.outdoor) {
-                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
-                        if (temperaturer.length > 479) {
-                            temperaturer.shift();
-                        }
-                        var tempArray = [];
-                        tempArray[0] = values.data[0].value;
-                        tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
-                        tempArray[2] = values.data[1].value;
-                        temperaturer.push(tempArray);
-                        logging("ID for sensor:" + values.id);
-                        logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
-                        logging("Time for value:" + tempArray[1]);
-                        logging("Length of array:" + temperaturer.length);
+                    if (values.model == config.outdoor) {
+			if(reloadIn <= 0){
+				reloadIn = newTempValues;
+	                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
+        	                if (temperaturer.length > 479) {
+        	                    temperaturer.shift();
+                	        }
+                        	var tempArray = [];
+  	              		tempArray[0] = values.data[0].value;
+        	                tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
+                	        tempArray[2] = values.data[1].value;
+                        	temperaturer.push(tempArray);
+    	                   	logging("ID for sensor:" + values.id);
+        	                logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
+                	        logging("Time for value:" + tempArray[1]);
+                        	logging("Length of array:" + temperaturer.length);
+			} else {
+				reloadIn = reloadIn - reloadverdi;
+			}
+                    	//logging("2: ReloadIn: " + reloadIn);
                     }
                 }catch (e) {
                     console.log('invalid json: ' + body);

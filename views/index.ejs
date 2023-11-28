@@ -12,6 +12,9 @@
     <%if(darkmode == "off"){%>
     <link rel="stylesheet" href="light.css">
     <%}%>
+<style>
+  canvas {width:550px;}
+</style
 </head>
 <body>
 <script>
@@ -36,7 +39,7 @@
 	<div style="font-size:30px;"><%=temperaturer[temperaturer.length - 1][2]%>&#37;</div>
     </td>
     <td align="center">
-	<canvas id="myChart" height="110" width="800"></canvas>
+	<canvas id="myChart" height="110"></canvas>
     </td>
     <td align="center">
         <%if(darkmode == "on"){%>
@@ -57,7 +60,7 @@
 </table>
 <div style="font-size:25px;">
 <%sensorverdier.forEach((element, index) => {%>
-    <%=sensorverdier[index].name%> : <%=sensorverdier[index].data[0].value%>&deg;C
+    <%=sensorverdier[index].id%> : <%=sensorverdier[index].data[0].value%>&deg;C
 <% });%>
 </div>
 

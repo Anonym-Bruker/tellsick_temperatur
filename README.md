@@ -30,6 +30,9 @@ With 1 file called common.json:
 AUTHKEY is the local token key you can get from your local Tellstick (use your local IP):
 https://tellstick-server.readthedocs.io/en/latest/api/authentication.html#step-1-request-a-request-token
 
+eks:
+curl -i -d app="Example app" -X PUT http://192.168.1.253/api/token
+
 The other key ant token values are generated here:
 https://api.telldus.com/keys/index
 
@@ -45,6 +48,12 @@ Run one of the following command to start application/server:
 __node server.js__
  or 
 __npm start__
+
+## How to stop?
+If started in background, find the process by command
+netstat -nlp|grep 8082
+then
+kill PID -9 -f
 
 ## Known limitations/bugs
 
