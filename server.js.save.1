@@ -7,8 +7,8 @@ var app = express();
 
 app.use(express.static('public'));
 
-var reloadverdi = 10000;
-var newTempValues = reloadverdi * 30;
+var reloadverdi = 5000;
+var newTempValues = reloadverdi * 60;
 var reloadIn = 0;
 
 var port = config.port;
@@ -49,15 +49,10 @@ function getDevices(){
 	    "Accept": "application/json"
 	  }
     }, (err, rs, body) => {
-	try
-	{
-        	var values = JSON.parse(body);
-        	//logging("Sensorverdier hentet ut:" + JSON.stringify(values));
-        	devices = values.sensor;
-        	//logging("Hentet ut devices!")
-        } catch (e) {
-		console.log('invalid json: ' + body);
-        }
+        var values = JSON.parse(body);
+        //logging("Sensorverdier hentet ut:" + JSON.stringify(values));
+        devices = values.sensor;
+        logging("Hentet ut devices!")
     });
     })();
 
@@ -71,7 +66,7 @@ function pad (length, str) {
 function updateAllTemp(){
     var currentDate = new Date();
     getDevices()
-    //logging("Oppdaterer temperaturer for følgende antall enheter: " +  devices.length);
+    logging("Oppdaterer temperaturer for følgende antall enheter: " +  devices.length);
 
     devices.forEach((element, index) => {
         (async () => {
@@ -85,44 +80,40 @@ function updateAllTemp(){
 		    "Accept": "application/json"
 		}
             }, (err, rs, body) => {
-            	try {
-                	var values = JSON.parse(body);
-                    	//logging("Hentet ut data");
-                    	//logging("Full metering data:" + JSON.stringify(values));
-                    	//logging("1: ReloadIn: " + reloadIn);
-		    	if(values.data != undefined && values.data[0] !=undefined)
-			{
-				logging("Enhet nr: " + index + ", har verdi:" + values.data[0].value)
-			} else
-			{
-				logging("Emhet nr: " + index + ", data undefined....")
+                try {
+                    var values = JSON.parse(body);
+                    logging("Hentet ut data");
+                    //logging("Full metering data:" + JSON.stringify(values));
+                    //logging("1: ReloadIn: " + reloadIn);
+                    if (sensorverdier.length > 479) {
+                        sensorverdier.shift();
+                    }
+                    sensorverdier[index] = values;
+                    if (values.model == config.outdoor) {
+			if(reloadIn <= 0){
+				reloadIn = newTempValues;
+	                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
+        	                if (temperaturer.length > 479) {
+        	                    temperaturer.shift();
+                	        }
+                        	var tempArray = [];
+  	              		tempArray[0] = values.data[0].value;
+        	                tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
+                	        tempArray[2] = values.data[1].value;
+                        	temperaturer.push(tempArray);
+    	                   	logging("ID for sensor:" + values.id);
+        	                logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
+                	        logging("Time for value:" + tempArray[1]);
+                        	logging("Length of array:" + temperaturer.length);
+			} else {
+				reloadIn = reloadIn - reloadverdi;
 			}
-                    	sensorverdier[index] = values;
-                    	if (values.model == config.outdoor) {
-				if(reloadIn <= 0){
-					reloadIn = newTempValues;
-		                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
-        		                if (temperaturer.length > 479) {
-        		                    temperaturer.shift();
-                		        }
-                        		var tempArray = [];
-	  	              		tempArray[0] = values.data[0].value;
-        		                tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
-                		        tempArray[2] = values.data[1].value;
-                        		temperaturer.push(tempArray);
-    	                   		logging("ID for sensor:" + values.id);
-	        	                logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
-        	        	        logging("Time for value:" + tempArray[1]);
-                	        	logging("Length of array:" + temperaturer.length);
-				} else {
-					reloadIn = reloadIn - reloadverdi;
-				}
-                	    	//logging("2: ReloadIn: " + reloadIn);
-	                }
-       	        } catch (e) {
-			console.log('invalid json: ' + body);
-	            	// updateTempLocal();
-               	}
+                    	//logging("2: ReloadIn: " + reloadIn);
+                    }
+                } catch (e) {
+                    console.log('invalid json: ' + body);
+                    updateTempLocal();
+                }
             });
         })();
     });
@@ -230,22 +221,15 @@ function logging(logtext)
         log_stdout.write(util.format(d) + '\n');
 }
 
-process.on('uncaughtException', err => {
-	logging('Noe uventet feil har skjedd:' + err.message);
-	logging('Noe uventet feil har skjedd:' + err.stack);
-	process.exit(1)
-})
-
 process.on('SIGINT', () => {
 	logging('Ctrl + C, stopper prosess');
-	process.exit(0)
+	process.exit()
 })
 
-process.on('SIGTERM', () => {
-	logging('Prosess terminert....');
-	process.exit(0)
+process.on('', () => {
+	logging('Ctrl + C, stopper prosess');
+	process.exit()
 })
-
 
 
 //function logging(logtext)
