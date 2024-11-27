@@ -32,21 +32,7 @@ AUTHKEY is the local token key you can get from your local Tellstick (use your l
 https://tellstick-server.readthedocs.io/en/latest/api/authentication.html#step-1-request-a-request-token
 
 eks:
- curl -i -d app="Example app" -X PUT http://192.168.1.2/api/token
-
-Use the response of this call to log into telldus live with your telldus user to authorize.
-Remark that not all browsers accept this. In Chrome and Firefox(?) you will get a messag saying /tellduslive/authorize' was not found
-(with a python-stacktrace)
-
-When you have been authorized, use the token from above to get the token from your local Telldus:
-i.e.:
- curl -i -X GET http://192.168.1.2/api/token?token=0996b21ee3f74d2b99568d8207a8add9
-(Substitute with correct token)
-
-The response will give you the token to use. Put this token in the common.json in the config folder.
-
-If you allowed to renew the token, you can use this call to renew the token (replace with the local telldus token):
- curl -i -X GET http://0.0.0.0/api/refreshToken -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImF1ZCI6IkV4YW1wbGUgYXBwIiwiZXhwIjoxNDUyOTUxNTYyfQ.eyJyZW5ldyI6dHJ1ZSwidHRsIjo4NjQwMH0.HeqoFM6-K5IuQa08Zr9HM9V2TKGRI9VxXlgdsutP7sg"
+curl -i -d app="Example app" -X PUT http://192.168.1.253/api/token
 
 The other key ant token values are generated here:
 https://api.telldus.com/keys/index

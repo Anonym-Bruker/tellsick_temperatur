@@ -21,15 +21,6 @@ var oppstartstidspunkt = new Date();
 var log_file = fs.createWriteStream(__dirname + '/logging' + oppstartstidspunkt.toISOString() +'.log', {flags : 'w'});
 var log_stdout = process.stdout;
 
-var weekday=new Array(7);
-weekday[0]="Man";
-weekday[1]="Tir";
-weekday[2]="Ons";
-weekday[3]="Tor";
-weekday[4]="Fre";
-weekday[5]="Lør";
-weekday[6]="Søn";
-
 
 app.set('view engine', 'ejs');
 
@@ -101,33 +92,33 @@ function updateAllTemp(){
                     	//logging("1: ReloadIn: " + reloadIn);
 		    	if(values.data != undefined && values.data[0] !=undefined)
 			{
-				//logging("Enhet nr: " + index + ", har verdi:" + values.data[0].value)
-	                    	sensorverdier[index] = values;
-        	            	if (values.model == config.outdoor) {
-					if(reloadIn <= 0){
-						reloadIn = newTempValues;
-		                	        logging("Funnet " + config.outdoor + ", legger til i grafarray")
-        		                	if (temperaturer.length > 479) {
-	        		                    temperaturer.shift();
-        	        		        }
-                	        		var tempArray = [];
-	  	        	      		tempArray[0] = values.data[0].value;
-        		        	        tempArray[1] = weekday[currentDate.getDay() - 1] + ": " + currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
-                		        	tempArray[2] = values.data[1].value;
-	                        		temperaturer.push(tempArray);
-    		                   		logging("ID for sensor:" + values.id);
-	        		                logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
-        	        		        logging("Time for value:" + tempArray[1] + ", Day:" + currentDate.getDay());
-                	        		logging("Length of array:" + temperaturer.length);
-					} else {
-						reloadIn = reloadIn - reloadverdi;
-					}
-                	    		//logging("2: ReloadIn: " + reloadIn);
-	                	}
+				logging("Enhet nr: " + index + ", har verdi:" + values.data[0].value)
 			} else
 			{
 				logging("Emhet nr: " + index + ", data undefined....")
 			}
+                    	sensorverdier[index] = values;
+                    	if (values.model == config.outdoor) {
+				if(reloadIn <= 0){
+					reloadIn = newTempValues;
+		                        logging("Funnet " + config.outdoor + ", legger til i grafarray")
+        		                if (temperaturer.length > 479) {
+        		                    temperaturer.shift();
+                		        }
+                        		var tempArray = [];
+	  	              		tempArray[0] = values.data[0].value;
+        		                tempArray[1] = currentDate.getHours() + ":" + pad(2, currentDate.getMinutes());
+                		        tempArray[2] = values.data[1].value;
+                        		temperaturer.push(tempArray);
+    	                   		logging("ID for sensor:" + values.id);
+	        	                logging("Values for sensor:" + tempArray[0] + ", " + tempArray[2]);
+        	        	        logging("Time for value:" + tempArray[1]);
+                	        	logging("Length of array:" + temperaturer.length);
+				} else {
+					reloadIn = reloadIn - reloadverdi;
+				}
+                	    	//logging("2: ReloadIn: " + reloadIn);
+	                }
        	        } catch (e) {
 			console.log('invalid json: ' + body);
 	            	// updateTempLocal();
