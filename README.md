@@ -28,11 +28,32 @@ With 1 file called common.json:
         "reloadverdi": 300000
     }
 
+
 AUTHKEY is the local token key you can get from your local Tellstick (use your local IP):
 https://tellstick-server.readthedocs.io/en/latest/api/authentication.html#step-1-request-a-request-token
 
-eks:
-curl -i -d app="Example app" -X PUT http://192.168.1.253/api/token
+This is how you do it:
+======================
+1. Run:
+ curl -i -d app="Example app" -X PUT http://192.168.1.2/api/token
+
+2. Use the URL in the JSON-response to authorize at telldus live with your telldus user.
+
+REMARK! Not all browswers accept this. On i.e. Chrome you might get an error saying '/tellduslive/authorize' was not found with a python stacktrace.
+If so, use another browser
+
+3. When you have been authorized, use the following command to get the local token:
+ curl -i -X GET http://192.168.1.2/api/token?token=0996b21ee3f74d2b99568d8207a8add9
+(Replace the token with the one from the previous answer)
+
+4. Then, use the token you get and put it into the token variable in the config/common.json
+
+(When approaching expiry) 
+5. If you want to renew the token (and accepted that in the call above), use the following call to get a new token:
+ curl -i -X GET http://192.168.1.2/api/refreshToken -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImF1ZCI6IkV4YW1wbGUgYXBwIiwiZXhwIjoxNDUyOTUxNTYyfQ.eyJyZW5ldyI6dHJ1ZSwidHRsIjo4NjQwMH0.HeqoFM6-K5IuQa08Zr9HM9V2TKGRI9VxXlgdsutP7sg"
+(replace with correct IP and token)
+
+
 
 The other key ant token values are generated here:
 https://api.telldus.com/keys/index
